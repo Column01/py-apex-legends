@@ -50,7 +50,7 @@ class ApexLegendsTracker(Frame):
         if self.platform is None:
             messagebox.showerror("Error", "No platform was found in the settings file!")
         
-        self.params = "?version=5&platform={platform}&player={username}&auth={token}".format(platform=self.platform, username=self.username, token=self.token)
+        self.params = f"?version=5&platform={self.platform}&player={self.username}&auth={self.token}"
 
     def get_data(self, endpoint, params=""):
         """ Gets data from the unofficial apex legends API
