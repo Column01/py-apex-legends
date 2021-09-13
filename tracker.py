@@ -37,8 +37,24 @@ class ApexLegendsTracker(Frame):
         menu_bar = Menu(self.master)
         menu_bar.add_command(label="Reload", command=self.load)
         self.master.config(menu=menu_bar)
+
+        self.clock_frame = Frame(self.master)
+        self.clock_frame.configure(bg=self.background_color)
+        self.clock_frame.pack(fill="x")
+        self.time_label = Label(self.clock_frame, text="Time:", font=self.label_font, bg=self.background_color, fg=self.label_color)
+        self.time_label.pack(padx=5, pady=5, side="left")
+        self.clock = Label(self.clock_frame, text=time.strftime('%I:%M:%S %p'), font=self.font, bg=self.background_color, fg=self.value_color)
+        self.clock.pack(side="left")
+
+        # Start clock display
+        self.update_clock()
+
         self.main_frame = None
         self.load()
+    
+    def update_clock(self):
+        self.clock.configure(text=time.strftime('%I:%M:%S %p'))
+        self.master.after(200, self.update_clock)
     
     def load_settings(self):
         try:
