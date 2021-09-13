@@ -61,8 +61,6 @@ class ApexLegendsTracker(Frame):
 
         # Starts a task to reload the data every second
         self.master.after(1000, self.load)
-
-        self.api_thread.username = "TESTING 123"
     
     def update_clock(self):
         self.clock.configure(text=time.strftime('%I:%M:%S %p'))
@@ -176,6 +174,7 @@ class APIDataFetcher(threading.Thread):
             """ Finish poll"""
             self.polling = False
             time.sleep(self.poll_interval)
+        return
 
     def get_data(self, endpoint, params=""):
         """ Returns data from the unofficial apex legends API.
@@ -190,7 +189,11 @@ class APIDataFetcher(threading.Thread):
 
 
 if __name__ == "__main__":
-    # Starts the UI
     root = Tk()
     tracker = ApexLegendsTracker(root)
+    def on_closing():
+        tracker.api_thread.running = False
+        tracker.api_thread.join()
+        quit()
+    root.protocol("WM_DELETE_WINDOW", on_closing)
     root.mainloop()
