@@ -99,9 +99,9 @@ class ApexLegendsTracker(Frame):
         user.pack(padx=5, pady=5, side="left")
 
         _cur_map = self.map_data["battle_royale"]["current"]["map"]
-        _cur_change = self.map_data["battle_royale"]["current"]["readableDate_end"].split(" ")[0]
+        _cur_change = self.map_data["battle_royale"]["current"]["readableDate_end"].split(" ")[1]
         _next_map= self.map_data["battle_royale"]["next"]["map"]
-        _next_change = self.map_data["battle_royale"]["next"]["readableDate_end"].split(" ")[0]
+        _next_change = self.map_data["battle_royale"]["next"]["readableDate_end"].split(" ")[1]
 
         cur_map_frame = Frame(self.main_frame)
         cur_map_frame.configure(bg=self.background_color)
