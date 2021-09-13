@@ -8,6 +8,7 @@ A Python app to track your apex legends stats using the [Apex Legends Status API
 - Install requests (`pip install requests`)
 - Configure the program (see [configuration](#Configuration))
 - Run the program with `python tracker.py`
+    - If you want to run it headless (no console) run it with `pythonw` instead
 
 ## Configuration
 
