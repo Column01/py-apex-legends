@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import time
+from datetime import datetime
 from tkinter import Frame, Label, Menu, Tk, font, messagebox
 
 import requests
@@ -99,20 +100,24 @@ class ApexLegendsTracker(Frame):
         user.pack(padx=5, pady=5, side="left")
 
         _cur_map = self.map_data["battle_royale"]["current"]["map"]
-        _cur_change = self.map_data["battle_royale"]["current"]["readableDate_end"].split(" ")[1]
+        _cur_change = self.map_data["battle_royale"]["current"]["end"]
         _next_map= self.map_data["battle_royale"]["next"]["map"]
-        _next_change = self.map_data["battle_royale"]["next"]["readableDate_end"].split(" ")[1]
+        _next_change = self.map_data["battle_royale"]["next"]["end"]
+
+        _cur_time = datetime.fromtimestamp(_cur_change).strftime("%I:%M %p")
+
+        _next_time = datetime.fromtimestamp(_next_change).strftime("%I:%M %p")
 
         cur_map_frame = Frame(self.main_frame)
         cur_map_frame.configure(bg=self.background_color)
         cur_map_frame.pack(fill="x")
-        cur_map = Label(cur_map_frame, text=f"Current BR map: {_cur_map}\nChanges at: {_cur_change}", font=self.font, bg=self.background_color, fg=self.text_color)
+        cur_map = Label(cur_map_frame, text=f"Current BR map: {_cur_map}\nChanges at: {_cur_time}", font=self.font, bg=self.background_color, fg=self.text_color)
         cur_map.pack(padx=5, pady=5, side="left")
 
         next_map_frame = Frame(self.main_frame)
         next_map_frame.configure(bg=self.background_color)
         next_map_frame.pack(fill="x")
-        next_map = Label(next_map_frame, text=f"Next BR map: {_next_map}\nChanges at: {_next_change}", font=self.font, bg=self.background_color, fg=self.text_color)
+        next_map = Label(next_map_frame, text=f"Next BR map: {_next_map}\nChanges at: {_next_time}", font=self.font, bg=self.background_color, fg=self.text_color)
         next_map.pack(padx=5, pady=5, side="left")
 
     def load(self):
