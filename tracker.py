@@ -194,6 +194,6 @@ if __name__ == "__main__":
     def on_closing():
         tracker.api_thread.running = False
         tracker.api_thread.join()
-        quit()
+        os._exit(0)
     root.protocol("WM_DELETE_WINDOW", on_closing)
     root.mainloop()

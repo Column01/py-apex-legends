@@ -1,2 +1,8 @@
 ﻿*.json
 *.txt
+*__pycache__
+build
+dist
+buildVenv
+*.ps1
+tracker.spec
