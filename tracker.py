@@ -25,9 +25,11 @@ class ApexLegendsTracker(Frame):
 
         # Some constants for use later
         self.font = font.Font(family="Helvetica Neue", size=14)
+        self.label_font = font.Font(family="Helvetica Neue", size=14, weight="bold", underline=True)
         self.background_color = "#333333"
         self.btn_background_color = "#655F5F"
-        self.text_color = "#FFFFFF"
+        self.label_color = "#FFFFFF"
+        self.value_color = "#40f200"
 
         self.settings_file = os.path.join(__location__, "settings.json")
         self.load_settings()
@@ -96,8 +98,10 @@ class ApexLegendsTracker(Frame):
         user_frame = Frame(self.main_frame)
         user_frame.configure(bg=self.background_color)
         user_frame.pack(fill="x")
-        user = Label(user_frame, text=f"{_username} (Level {_level})", font=self.font, bg=self.background_color, fg=self.text_color)
+        user = Label(user_frame, text=f"User Info:", font=self.label_font, bg=self.background_color, fg=self.label_color)
         user.pack(padx=5, pady=5, side="left")
+        level = Label(user_frame, text=f"{_username} (Level {_level})", font=self.font, bg=self.background_color, fg=self.value_color)
+        level.pack(side="left")
 
         _cur_map = self.map_data["battle_royale"]["current"]["map"]
         _cur_change = self.map_data["battle_royale"]["current"]["end"]
@@ -111,14 +115,18 @@ class ApexLegendsTracker(Frame):
         cur_map_frame = Frame(self.main_frame)
         cur_map_frame.configure(bg=self.background_color)
         cur_map_frame.pack(fill="x")
-        cur_map = Label(cur_map_frame, text=f"Current BR map: {_cur_map}\nChanges at: {_cur_time}", font=self.font, bg=self.background_color, fg=self.text_color)
+        cur_map = Label(cur_map_frame, text="Current Map:", font=self.label_font, bg=self.background_color, fg=self.label_color)
         cur_map.pack(padx=5, pady=5, side="left")
+        cur_map_name = Label(cur_map_frame, text=f"{_cur_map} (until {_cur_time})", font=self.font, bg=self.background_color, fg=self.value_color)
+        cur_map_name.pack(side="left")
 
         next_map_frame = Frame(self.main_frame)
         next_map_frame.configure(bg=self.background_color)
         next_map_frame.pack(fill="x")
-        next_map = Label(next_map_frame, text=f"Next BR map: {_next_map}\nChanges at: {_next_time}", font=self.font, bg=self.background_color, fg=self.text_color)
+        next_map = Label(next_map_frame, text=f"Next Map:", font=self.label_font, bg=self.background_color, fg=self.label_color)
         next_map.pack(padx=5, pady=5, side="left")
+        next_map_name = Label(next_map_frame, text=f"{_next_map} (until {_next_time})", font=self.font, bg=self.background_color, fg=self.value_color)
+        next_map_name.pack(side="left")
 
     def load(self):
         self.player_data = self.get_data("bridge")
