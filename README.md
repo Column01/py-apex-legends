@@ -23,3 +23,12 @@ Make sure it's in the same folder as `tracker.py`!
     "platform": "YOUR_PLATFORM"
 }
 ```
+
+## A note regarding kills and damage (and other future tracked stats)
+
+The stats tracked by the API (and all other apex legends APIs) are only updated based on trackers for your **currently equipped legend**
+
+Totals will likely be wrong for you. If you want to update the API to get the correct numbers, do the following:
+1. Equip damage and kill trackers on each legend. 
+2. Go through each legend one by one and only swap legends when you see the number in the application update. If it doesn't change after 15 seconds, it likely already was added to the database and you can move on to the next one.
+3. To keep the trackers up to date, leave the application running while you play and at the end of each game, the totals should update after a few seconds in the lobby.
