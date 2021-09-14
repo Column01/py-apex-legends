@@ -8,7 +8,7 @@ from tkinter import Frame, Menu, Tk, messagebox
 
 import requests
 
-from gui_elements import SectionLabel, TrackerFrame, ValueLabel
+from gui_elements import BACKGROUND_COLOR, SectionLabel, TrackerFrame, ValueLabel
 
 # Changes an internal path variable based on whether the application was built into an EXE or not.
 if hasattr(sys, 'frozen') and hasattr(sys, '_MEIPASS'):
@@ -31,12 +31,9 @@ class ApexLegendsTracker(Frame):
         menu_bar.add_command(label="Reload", command=self.init_window)
         self.master.config(menu=menu_bar)
 
-        clock_frame = TrackerFrame(self.master)
-        clock_frame.pack(fill="x")
+        clock_frame = TrackerFrame(self.master, fill="x")
         time_label = SectionLabel(clock_frame, "Time:")
-        time_label.pack(side="left")
         self.clock = ValueLabel(clock_frame, time.strftime('%I:%M:%S %p'))
-        self.clock.pack(side="left")
 
         # Start clock display
         self.update_clock()
@@ -84,55 +81,36 @@ class ApexLegendsTracker(Frame):
             # Main frame exists so we are reloading. Destroy it and recreate it
             self.main_frame.destroy()
         # Make main window frame
-        self.main_frame = TrackerFrame(self.master)
-        self.main_frame.pack(fill="both", expand=1)
+        self.main_frame = TrackerFrame(self.master, fill="both")
 
         # User Info
-        user_frame = TrackerFrame(self.main_frame)
-        user_frame.pack(fill="x")
+        user_frame = TrackerFrame(self.main_frame, fill="x")
         user_info_label = SectionLabel(user_frame, "User Info:")
-        user_info_label.pack(side="left")
         self.user_info = ValueLabel(user_frame, f"{self.api_thread.username} (Level {self.api_thread.level}) - {self.api_thread.online_status}")
-        self.user_info.pack(side="left")
         
         # Legend
-        legend_frame = TrackerFrame(self.main_frame)
-        legend_frame.pack(fill="x")
+        legend_frame = TrackerFrame(self.main_frame, fill="x")
         legend_label = SectionLabel(legend_frame, "Selected Legend:")
-        legend_label.pack(side="left")
         self.legend = ValueLabel(legend_frame, f"{self.api_thread.legend}")
-        self.legend.pack(side="left")
         
         # Kills
-        kills_frame = TrackerFrame(self.main_frame)
-        kills_frame.pack(fill="x")
+        kills_frame = TrackerFrame(self.main_frame, fill="x")
         kill_label = SectionLabel(kills_frame, "Kills:")
-        kill_label.pack(side="left")
         self.kills = ValueLabel(kills_frame, f"{self.api_thread.total_kills}")
-        self.kills.pack(side="left")
         
         # Damage
-        damage_frame = TrackerFrame(self.main_frame)
-        damage_frame.pack(fill="x")
+        damage_frame = TrackerFrame(self.main_frame, fill="x")
         damage_label = SectionLabel(damage_frame, "Damage:")
-        damage_label.pack(side="left")
         self.damage = ValueLabel(damage_frame, f"{self.api_thread.total_damage}")
-        self.damage.pack(side="left")
 
         # Map info
-        cur_map_frame = TrackerFrame(self.main_frame)
-        cur_map_frame.pack(fill="x")
+        cur_map_frame = TrackerFrame(self.main_frame, fill="x")
         cur_map_label = SectionLabel(cur_map_frame, "Current Map:")
-        cur_map_label.pack(side="left")
         self.cur_map = ValueLabel(cur_map_frame, f"{self.api_thread.cur_map} (until {self.api_thread.cur_map_end})")
-        self.cur_map.pack(side="left")
 
-        next_map_frame = TrackerFrame(self.main_frame)
-        next_map_frame.pack(fill="x")
+        next_map_frame = TrackerFrame(self.main_frame, fill="x")
         next_map_label = SectionLabel(next_map_frame, "Next Map:")
-        next_map_label.pack(side="left")
         self.next_map = ValueLabel(next_map_frame, f"{self.api_thread.next_map} (until {self.api_thread.next_map_end})")
-        self.next_map.pack(side="left")
 
     def load(self):
         # Not polling data, update the UI
