@@ -1,12 +1,14 @@
 import json
 import os
 import sys
-import time
 import threading
+import time
 from datetime import datetime
-from tkinter import Frame, Label, Menu, Tk, font, messagebox
+from tkinter import Frame, Menu, Tk, messagebox
 
 import requests
+
+from gui_elements import SectionLabel, TrackerFrame, ValueLabel
 
 # Changes an internal path variable based on whether the application was built into an EXE or not.
 if hasattr(sys, 'frozen') and hasattr(sys, '_MEIPASS'):
@@ -22,27 +24,18 @@ class ApexLegendsTracker(Frame):
         self.master = master
         self.master.title("Apex Legends Tracker")
 
-        # Some constants for use later
-        self.font = font.Font(family="Helvetica Neue", size=14)
-        self.label_font = font.Font(family="Helvetica Neue", size=14, weight="bold", underline=True)
-        self.background_color = "#333333"
-        self.btn_background_color = "#655F5F"
-        self.label_color = "#FFFFFF"
-        self.value_color = "#40f200"
-
         self.settings_file = os.path.join(__location__, "settings.json")
         self.load_settings()
 
         menu_bar = Menu(self.master)
-        menu_bar.add_command(label="Reload", command=self.load)
+        menu_bar.add_command(label="Reload", command=self.init_window)
         self.master.config(menu=menu_bar)
 
-        self.clock_frame = Frame(self.master)
-        self.clock_frame.configure(bg=self.background_color)
-        self.clock_frame.pack(fill="x")
-        self.time_label = Label(self.clock_frame, text="Time:", font=self.label_font, bg=self.background_color, fg=self.label_color)
-        self.time_label.pack(padx=5, pady=5, side="left")
-        self.clock = Label(self.clock_frame, text=time.strftime('%I:%M:%S %p'), font=self.font, bg=self.background_color, fg=self.value_color)
+        clock_frame = TrackerFrame(self.master)
+        clock_frame.pack(fill="x")
+        time_label = SectionLabel(clock_frame, "Time:")
+        time_label.pack(side="left")
+        self.clock = ValueLabel(clock_frame, time.strftime('%I:%M:%S %p'))
         self.clock.pack(side="left")
 
         # Start clock display
@@ -59,11 +52,11 @@ class ApexLegendsTracker(Frame):
         # Loads the data into the UI
         self.init_window()
 
-        # Starts a task to reload the data every second
-        self.master.after(1000, self.load)
+        # Starts updating data every second
+        self.load()
     
     def update_clock(self):
-        self.clock.configure(text=time.strftime('%I:%M:%S %p'))
+        self.clock.update(time.strftime('%I:%M:%S %p'))
         self.master.after(200, self.update_clock)
     
     def load_settings(self):
@@ -87,86 +80,76 @@ class ApexLegendsTracker(Frame):
             messagebox.showerror("Error", "No platform was found in the settings file!")
 
     def init_window(self):
-        if self.main_frame is None:
-            # Make main window frame
-            self.main_frame = Frame(self.master)
-            self.main_frame.configure(bg=self.background_color)
-            self.main_frame.pack(fill="both", expand=1)
-        else:
+        if self.main_frame is not None:
             # Main frame exists so we are reloading. Destroy it and recreate it
             self.main_frame.destroy()
-            self.main_frame = Frame(self.master)
-            self.main_frame.configure(bg=self.background_color)
-            self.main_frame.pack(fill="both", expand=1)
+        # Make main window frame
+        self.main_frame = TrackerFrame(self.master)
+        self.main_frame.pack(fill="both", expand=1)
 
         # User Info
-        user_frame = Frame(self.main_frame)
-        user_frame.configure(bg=self.background_color)
+        user_frame = TrackerFrame(self.main_frame)
         user_frame.pack(fill="x")
-        user_info_label = Label(user_frame, text="User Info:", font=self.label_font, bg=self.background_color, fg=self.label_color)
-        user_info_label.pack(padx=5, pady=5, side="left")
-        self.user_info = Label(user_frame, text=f"{self.api_thread.username} (Level {self.api_thread.level}) - {self.api_thread.online_status}", font=self.font, bg=self.background_color, fg=self.value_color)
+        user_info_label = SectionLabel(user_frame, "User Info:")
+        user_info_label.pack(side="left")
+        self.user_info = ValueLabel(user_frame, f"{self.api_thread.username} (Level {self.api_thread.level}) - {self.api_thread.online_status}")
         self.user_info.pack(side="left")
         
         # Legend
-        legend_frame = Frame(self.main_frame)
-        legend_frame.configure(bg=self.background_color)
+        legend_frame = TrackerFrame(self.main_frame)
         legend_frame.pack(fill="x")
-        legend_label = Label(legend_frame, text="Selected Legend:", font=self.label_font, bg=self.background_color, fg=self.label_color)
-        legend_label.pack(padx=5, pady=5, side="left")
-        self.legend = Label(legend_frame, text=f"{self.api_thread.legend}", font=self.font, bg=self.background_color, fg=self.value_color)
+        legend_label = SectionLabel(legend_frame, "Selected Legend:")
+        legend_label.pack(side="left")
+        self.legend = ValueLabel(legend_frame, f"{self.api_thread.legend}")
         self.legend.pack(side="left")
         
         # Kills
-        kills_frame = Frame(self.main_frame)
-        kills_frame.configure(bg=self.background_color)
+        kills_frame = TrackerFrame(self.main_frame)
         kills_frame.pack(fill="x")
-        kill_label = Label(kills_frame, text="Kills:", font=self.label_font, bg=self.background_color, fg=self.label_color)
-        kill_label.pack(padx=5, pady=5, side="left")
-        self.kills = Label(kills_frame, text=f"{self.api_thread.total_kills}", font=self.font, bg=self.background_color, fg=self.value_color)
+        kill_label = SectionLabel(kills_frame, "Kills:")
+        kill_label.pack(side="left")
+        self.kills = ValueLabel(kills_frame, f"{self.api_thread.total_kills}")
         self.kills.pack(side="left")
         
         # Damage
-        damage_frame = Frame(self.main_frame)
-        damage_frame.configure(bg=self.background_color)
+        damage_frame = TrackerFrame(self.main_frame)
         damage_frame.pack(fill="x")
-        damage_label = Label(damage_frame, text="Damage:", font=self.label_font, bg=self.background_color, fg=self.label_color)
-        damage_label.pack(padx=5, pady=5, side="left")
-        self.damage = Label(damage_frame, text=f"{self.api_thread.total_damage}", font=self.font, bg=self.background_color, fg=self.value_color)
+        damage_label = SectionLabel(damage_frame, "Damage:")
+        damage_label.pack(side="left")
+        self.damage = ValueLabel(damage_frame, f"{self.api_thread.total_damage}")
         self.damage.pack(side="left")
 
-        cur_map_frame = Frame(self.main_frame)
-        cur_map_frame.configure(bg=self.background_color)
+        # Map info
+        cur_map_frame = TrackerFrame(self.main_frame)
         cur_map_frame.pack(fill="x")
-        cur_map_label = Label(cur_map_frame, text="Current Map:", font=self.label_font, bg=self.background_color, fg=self.label_color)
-        cur_map_label.pack(padx=5, pady=5, side="left")
-        self.cur_map = Label(cur_map_frame, text=f"{self.api_thread.cur_map} (until {self.api_thread.cur_map_end})", font=self.font, bg=self.background_color, fg=self.value_color)
+        cur_map_label = SectionLabel(cur_map_frame, "Current Map:")
+        cur_map_label.pack(side="left")
+        self.cur_map = ValueLabel(cur_map_frame, f"{self.api_thread.cur_map} (until {self.api_thread.cur_map_end})")
         self.cur_map.pack(side="left")
 
-        next_map_frame = Frame(self.main_frame)
-        next_map_frame.configure(bg=self.background_color)
+        next_map_frame = TrackerFrame(self.main_frame)
         next_map_frame.pack(fill="x")
-        next_map_label = Label(next_map_frame, text="Next Map:", font=self.label_font, bg=self.background_color, fg=self.label_color)
-        next_map_label.pack(padx=5, pady=5, side="left")
-        self.next_map = Label(next_map_frame, text=f"{self.api_thread.next_map} (until {self.api_thread.next_map_end})", font=self.font, bg=self.background_color, fg=self.value_color)
+        next_map_label = SectionLabel(next_map_frame, "Next Map:")
+        next_map_label.pack(side="left")
+        self.next_map = ValueLabel(next_map_frame, f"{self.api_thread.next_map} (until {self.api_thread.next_map_end})")
         self.next_map.pack(side="left")
 
     def load(self):
         # Not polling data, update the UI
         if not self.api_thread.polling:
             # Update username and Level
-            self.user_info.configure(text=f"{self.api_thread.username} (Level {self.api_thread.level}) - {self.api_thread.online_status}")
+            self.user_info.update(f"{self.api_thread.username} (Level {self.api_thread.level}) - {self.api_thread.online_status}")
 
             # Update selected legend
-            self.legend.configure(text=f"{self.api_thread.legend}")
+            self.legend.update(f"{self.api_thread.legend}")
 
             # Update kills and damage tracker
-            self.kills.configure(text=f"{self.api_thread.total_kills}")
-            self.damage.configure(text=f"{self.api_thread.total_damage}")
+            self.kills.update(f"{self.api_thread.total_kills}")
+            self.damage.update(f"{self.api_thread.total_damage}")
 
             # Update current and next map info
-            self.cur_map.configure(text=f"{self.api_thread.cur_map} (until {self.api_thread.cur_map_end})")
-            self.next_map.configure(text=f"{self.api_thread.next_map} (until {self.api_thread.next_map_end})")
+            self.cur_map.update(f"{self.api_thread.cur_map} (until {self.api_thread.cur_map_end})")
+            self.next_map.update(f"{self.api_thread.next_map} (until {self.api_thread.next_map_end})")
 
         self.master.after(1000, self.load)
 
