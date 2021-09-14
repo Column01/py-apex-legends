@@ -99,39 +99,74 @@ class ApexLegendsTracker(Frame):
             self.main_frame.configure(bg=self.background_color)
             self.main_frame.pack(fill="both", expand=1)
 
+        # User Info
         user_frame = Frame(self.main_frame)
         user_frame.configure(bg=self.background_color)
         user_frame.pack(fill="x")
-        user_info_label = Label(user_frame, text=f"User Info:", font=self.label_font, bg=self.background_color, fg=self.label_color)
-        user_info_label .pack(padx=5, pady=5, side="left")
-        self.user_label = Label(user_frame, text=f"{self.api_thread.username} (Level {self.api_thread.level})", font=self.font, bg=self.background_color, fg=self.value_color)
-        self.user_label.pack(side="left")
+        user_info_label = Label(user_frame, text="User Info:", font=self.label_font, bg=self.background_color, fg=self.label_color)
+        user_info_label.pack(padx=5, pady=5, side="left")
+        self.user_info = Label(user_frame, text=f"{self.api_thread.username} (Level {self.api_thread.level}) - {self.api_thread.online_status}", font=self.font, bg=self.background_color, fg=self.value_color)
+        self.user_info.pack(side="left")
+        
+        # Legend
+        legend_frame = Frame(self.main_frame)
+        legend_frame.configure(bg=self.background_color)
+        legend_frame.pack(fill="x")
+        legend_label = Label(legend_frame, text="Selected Legend:", font=self.label_font, bg=self.background_color, fg=self.label_color)
+        legend_label.pack(padx=5, pady=5, side="left")
+        self.legend = Label(legend_frame, text=f"{self.api_thread.legend}", font=self.font, bg=self.background_color, fg=self.value_color)
+        self.legend.pack(side="left")
+        
+        # Kills
+        kills_frame = Frame(self.main_frame)
+        kills_frame.configure(bg=self.background_color)
+        kills_frame.pack(fill="x")
+        kill_label = Label(kills_frame, text="Kills:", font=self.label_font, bg=self.background_color, fg=self.label_color)
+        kill_label.pack(padx=5, pady=5, side="left")
+        self.kills = Label(kills_frame, text=f"{self.api_thread.total_kills}", font=self.font, bg=self.background_color, fg=self.value_color)
+        self.kills.pack(side="left")
+        
+        # Damage
+        damage_frame = Frame(self.main_frame)
+        damage_frame.configure(bg=self.background_color)
+        damage_frame.pack(fill="x")
+        damage_label = Label(damage_frame, text="Damage:", font=self.label_font, bg=self.background_color, fg=self.label_color)
+        damage_label.pack(padx=5, pady=5, side="left")
+        self.damage = Label(damage_frame, text=f"{self.api_thread.total_damage}", font=self.font, bg=self.background_color, fg=self.value_color)
+        self.damage.pack(side="left")
 
         cur_map_frame = Frame(self.main_frame)
         cur_map_frame.configure(bg=self.background_color)
         cur_map_frame.pack(fill="x")
         cur_map_label = Label(cur_map_frame, text="Current Map:", font=self.label_font, bg=self.background_color, fg=self.label_color)
         cur_map_label.pack(padx=5, pady=5, side="left")
-        self.cur_map_name_label = Label(cur_map_frame, text=f"{self.api_thread.cur_map} (until {self.api_thread.cur_map_end})", font=self.font, bg=self.background_color, fg=self.value_color)
-        self.cur_map_name_label.pack(side="left")
+        self.cur_map = Label(cur_map_frame, text=f"{self.api_thread.cur_map} (until {self.api_thread.cur_map_end})", font=self.font, bg=self.background_color, fg=self.value_color)
+        self.cur_map.pack(side="left")
 
         next_map_frame = Frame(self.main_frame)
         next_map_frame.configure(bg=self.background_color)
         next_map_frame.pack(fill="x")
-        next_map_label = Label(next_map_frame, text=f"Next Map:", font=self.label_font, bg=self.background_color, fg=self.label_color)
+        next_map_label = Label(next_map_frame, text="Next Map:", font=self.label_font, bg=self.background_color, fg=self.label_color)
         next_map_label.pack(padx=5, pady=5, side="left")
-        self.next_map_name_label = Label(next_map_frame, text=f"{self.api_thread.next_map} (until {self.api_thread.next_map_end})", font=self.font, bg=self.background_color, fg=self.value_color)
-        self.next_map_name_label.pack(side="left")
+        self.next_map = Label(next_map_frame, text=f"{self.api_thread.next_map} (until {self.api_thread.next_map_end})", font=self.font, bg=self.background_color, fg=self.value_color)
+        self.next_map.pack(side="left")
 
     def load(self):
         # Not polling data, update the UI
         if not self.api_thread.polling:
             # Update username and Level
-            self.user_label.configure(text=f"{self.api_thread.username} (Level {self.api_thread.level})")
+            self.user_info.configure(text=f"{self.api_thread.username} (Level {self.api_thread.level}) - {self.api_thread.online_status}")
+
+            # Update selected legend
+            self.legend.configure(text=f"{self.api_thread.legend}")
+
+            # Update kills and damage tracker
+            self.kills.configure(text=f"{self.api_thread.total_kills}")
+            self.damage.configure(text=f"{self.api_thread.total_damage}")
 
             # Update current and next map info
-            self.cur_map_name_label.configure(text=f"{self.api_thread.cur_map} (until {self.api_thread.cur_map_end})")
-            self.next_map_name_label.configure(text=f"{self.api_thread.next_map} (until {self.api_thread.next_map_end})")
+            self.cur_map.configure(text=f"{self.api_thread.cur_map} (until {self.api_thread.cur_map_end})")
+            self.next_map.configure(text=f"{self.api_thread.next_map} (until {self.api_thread.next_map_end})")
 
         self.master.after(1000, self.load)
 
@@ -157,10 +192,18 @@ class APIDataFetcher(threading.Thread):
             self.polling = True
 
             """ Player data """
-            self.player_data = self.get_data("bridge")
+            self.player_data = self.get_data("bridge", params="&merge&removeMerged")
             # Username and Level
             self.username = self.player_data["global"]["name"]
             self.level = self.player_data["global"]["level"]
+
+            # Realtime info
+            self.online_status = "Online" if self.player_data["realtime"]["isOnline"] == 1 else "Offline"
+            self.legend = self.player_data["realtime"]["selectedLegend"]
+
+            # Totals
+            self.total_kills = self.player_data["total"]["kills"]["value"]
+            self.total_damage = self.player_data["total"]["damage"]["value"]
 
             """ Map data """
             self.map_data = self.get_data("maprotation")
