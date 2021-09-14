@@ -8,7 +8,7 @@ from tkinter import Frame, Menu, Tk, messagebox
 
 import requests
 
-from gui_elements import BACKGROUND_COLOR, SectionLabel, TrackerFrame, ValueLabel
+from gui_elements import SectionLabel, TrackerFrame, ValueLabel
 
 # Changes an internal path variable based on whether the application was built into an EXE or not.
 if hasattr(sys, 'frozen') and hasattr(sys, '_MEIPASS'):
