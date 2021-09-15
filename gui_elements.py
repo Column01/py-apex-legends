@@ -16,15 +16,15 @@ SIZE = 14
 
 
 class TrackerFrame(Frame):
-    def __init__(self, master, fill):
+    def __init__(self, master, **pack_args):
         """Custom Tkinter Frame for custom formatting with automatic UI packing
 
         Args:
             master (tkinter.Frame): Tkinter frame that is the master
-            fill (str): Fill parameter for automatic packing of element
+            pack_args: Parameters for automatic packing of element
         """
         Frame.__init__(self, master, bg=BACKGROUND_COLOR)
-        self.pack(fill=fill)
+        self.pack(pack_args)
 
 
 class SectionLabel(Frame):

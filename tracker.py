@@ -81,7 +81,7 @@ class ApexLegendsTracker(Frame):
             # Main frame exists so we are reloading. Destroy it and recreate it
             self.main_frame.destroy()
         # Make main window frame
-        self.main_frame = TrackerFrame(self.master, fill="both")
+        self.main_frame = TrackerFrame(self.master, fill="both", expand=1)
 
         # User Info
         user_frame = TrackerFrame(self.main_frame, fill="x")
