@@ -151,29 +151,37 @@ class APIDataFetcher(threading.Thread):
         self.running = True
         while self.running:
             self.polling = True
+            try:
+                """ Player data """
+                self.player_data = self.get_data("bridge", params="&merge&removeMerged")
+                if self.player_data is not None:
+                    # Username and Level
+                    self.username = self.player_data["global"]["name"]
+                    self.level = self.player_data["global"]["level"]
 
-            """ Player data """
-            self.player_data = self.get_data("bridge", params="&merge&removeMerged")
-            # Username and Level
-            self.username = self.player_data["global"]["name"]
-            self.level = self.player_data["global"]["level"]
+                    # Realtime info
+                    self.online_status = "Online" if self.player_data["realtime"]["isOnline"] == 1 else "Offline"
+                    self.legend = self.player_data["realtime"]["selectedLegend"]
 
-            # Realtime info
-            self.online_status = "Online" if self.player_data["realtime"]["isOnline"] == 1 else "Offline"
-            self.legend = self.player_data["realtime"]["selectedLegend"]
+                    # Totals
+                    self.total_kills = self.player_data["total"]["kills"]["value"]
+                    self.total_damage = self.player_data["total"]["damage"]["value"]
 
-            # Totals
-            self.total_kills = self.player_data["total"]["kills"]["value"]
-            self.total_damage = self.player_data["total"]["damage"]["value"]
-
-            """ Map data """
-            self.map_data = self.get_data("maprotation")
-            # Current Map
-            self.cur_map = self.map_data["battle_royale"]["current"]["map"]
-            self.cur_map_end = datetime.fromtimestamp(self.map_data["battle_royale"]["current"]["end"]).strftime("%I:%M %p")
-            # Next Map
-            self.next_map = self.map_data["battle_royale"]["next"]["map"]
-            self.next_map_end = datetime.fromtimestamp(self.map_data["battle_royale"]["next"]["end"]).strftime("%I:%M %p")
+                """ Map data """
+                self.map_data = self.get_data("maprotation")
+                if self.map_data is not None:
+                    # Current Map
+                    self.cur_map = self.map_data["battle_royale"]["current"]["map"]
+                    self.cur_map_end = datetime.fromtimestamp(self.map_data["battle_royale"]["current"]["end"]).strftime("%I:%M %p")
+                    # Next Map
+                    self.next_map = self.map_data["battle_royale"]["next"]["map"]
+                    self.next_map_end = datetime.fromtimestamp(self.map_data["battle_royale"]["next"]["end"]).strftime("%I:%M %p")
+            except AttributeError as e:
+                print(f"AttributeError when parsing player/map data: {e}")
+            except KeyError as e:
+                print(f"KeyError when parsing player/map data: {e}")
+            except BaseException as e:
+                print(f"Unknown Exception when parsing player/map data. Exception type: {e.__class__.__name__}. Exception: {e}")
 
             """ Finish poll"""
             self.polling = False
@@ -187,9 +195,14 @@ class APIDataFetcher(threading.Thread):
             endpoint (str) - The API endpoint to get data from
             params (Optional[str]) - An optional URL encoded list of params to add to the query. Example: "&limit=10"
         """
-        resp = requests.get(self.api_base + endpoint + self.params + params)
-        time.sleep(self.delay)
-        return resp.json()
+        try:
+            resp = requests.get(self.api_base + endpoint + self.params + params)
+            time.sleep(self.delay)
+            return resp.json()
+        except json.JSONDecodeError as e:
+            print(e)
+        except BaseException as e:
+            print(f"Unknown Exception when making web request. Exception type: {e.__class__.__name__}. Exception: {e}")
 
 
 if __name__ == "__main__":
@@ -197,7 +210,6 @@ if __name__ == "__main__":
     tracker = ApexLegendsTracker(root)
     def on_closing():
         tracker.api_thread.running = False
-        tracker.api_thread.join()
         os._exit(0)
     root.protocol("WM_DELETE_WINDOW", on_closing)
     root.mainloop()
