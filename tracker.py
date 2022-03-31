@@ -39,8 +39,8 @@ class ApexLegendsTracker(Frame):
         self.update_clock()
         self.main_frame = None
 
-        # Starts a thread to gather API data every 30 seconds with a 0.25 second delay between requests
-        self.api_thread = APIDataFetcher(self.username, self.platform, self.token, 0.1, 10.0)
+        # Starts a thread to gather API data every 10 seconds with a 0.1 second delay between requests
+        self.api_thread = APIDataFetcher(self.username, self.platform, self.token, 0.1, 10)
         self.api_thread.start()
         
         # Wait until the API thread polls once
@@ -80,6 +80,14 @@ class ApexLegendsTracker(Frame):
         if self.main_frame is not None:
             # Main frame exists so we are reloading. Destroy it and recreate it
             self.main_frame.destroy()
+        
+        if not self.api_thread.polling:
+            # Force API thread to poll
+            self.api_thread.force_poll = True
+
+        while self.api_thread.polling:
+            # wait until api data has been gathered
+            pass
         # Make main window frame
         self.main_frame = TrackerFrame(self.master, fill="both", expand=1)
 
@@ -146,6 +154,7 @@ class APIDataFetcher(threading.Thread):
 
         self.running = False
         self.polling = False
+        self.force_poll = False
 
     def run(self):
         self.running = True
@@ -185,7 +194,13 @@ class APIDataFetcher(threading.Thread):
 
             """ Finish poll"""
             self.polling = False
-            time.sleep(self.poll_interval)
+
+            for i in range(self.poll_interval):
+                if self.force_poll:
+                    self.force_poll = False
+                    break
+                else:
+                    time.sleep(1)
         return
 
     def get_data(self, endpoint, params=""):
