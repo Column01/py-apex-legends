@@ -166,7 +166,8 @@ class APIDataFetcher(threading.Thread):
                 if self.player_data is not None:
                     # Username and Level
                     self.username = self.player_data["global"]["name"]
-                    self.level = self.player_data["global"]["level"]
+                    self.prestige_level = self.player_data["global"]["levelPrestige"]
+                    self.level = self.player_data["global"]["level"] + (self.prestige_level * 500)
 
                     # Realtime info
                     self.online_status = "Online" if self.player_data["realtime"]["isOnline"] == 1 else "Offline"
